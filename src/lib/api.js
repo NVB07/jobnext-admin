@@ -244,3 +244,17 @@ export const fetchJobCategories = async () => {
         return [];
     }
 };
+
+// Get a specific job by ID
+export async function getJob(id) {
+    try {
+        const response = await fetch(`${API_URL}/jobs/${id}`);
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status}`);
+        }
+        return await response.json();
+    } catch (error) {
+        console.error("Error fetching job:", error);
+        throw error;
+    }
+}

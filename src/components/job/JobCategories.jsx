@@ -5,6 +5,7 @@ import { fetchJobCategories } from "@/lib/api";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Briefcase, PieChart } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { jobCategoriesMap } from "@/lib/constants";
 
 export default function JobCategories() {
     const [categories, setCategories] = useState([]);
@@ -54,7 +55,7 @@ export default function JobCategories() {
                             <Card key={index}>
                                 <CardHeader className="">
                                     <CardTitle className="text-lg font-medium flex items-center justify-between">
-                                        <span className="truncate">{category.categoryVI || category.category}</span>
+                                        <span className="truncate">{jobCategoriesMap[category.category] || category.category}</span>
                                         <span className="text-sm font-normal bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
                                             {calculatePercentage(category.count)}%
                                         </span>

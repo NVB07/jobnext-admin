@@ -1,24 +1,41 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Calendar, Globe, MoreHorizontal, Plus, Search, SlidersHorizontal, X } from "lucide-react";
+import { MoreHorizontal, Plus, Search, SlidersHorizontal, X, Loader2, Trash } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { fetchJobs, searchJobs } from "@/lib/api";
 
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { searchJobs, deleteJob } from "@/lib/api";
+import { jobCategoriesMap, experienceLevelsMap } from "@/lib/constants";
 export default function Jobs() {
+    const router = useRouter();
     const [jobs, setJobs] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [jobCategory, setJobCategory] = useState("");
     const [experienceLevel, setExperienceLevel] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [loading, setLoading] = useState(true);
+    const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [jobToDelete, setJobToDelete] = useState(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+
     const [pagination, setPagination] = useState({
         currentPage: 1,
         perPage: 20,
@@ -36,7 +53,7 @@ export default function Jobs() {
             try {
                 setLoading(true);
                 const data = await searchJobs(pagination.currentPage, pagination.perPage);
-                console.log("Jobs data:", data);
+
                 setJobs(data.jobs || []);
                 setPagination(data.pagination || pagination);
             } catch (error) {
@@ -53,12 +70,12 @@ export default function Jobs() {
     const changePage = (newPage) => {
         if (newPage >= 1 && newPage <= pagination.totalPages) {
             setPagination((prev) => ({ ...prev, currentPage: newPage }));
-            handleSearch();
+            handleSearch(null, newPage);
         }
     };
 
     // Handle search with filters
-    const handleSearch = async (e) => {
+    const handleSearch = async (e, page = pagination.currentPage) => {
         if (e) e.preventDefault();
 
         setLoading(true);
@@ -69,9 +86,10 @@ export default function Jobs() {
                 jobLevel: experienceLevel,
             };
 
-            const data = await searchJobs(pagination.currentPage, pagination.perPage, filters);
+            const data = await searchJobs(page, pagination.perPage, filters);
+            console.log("Jobs data:", data);
             setJobs(data.jobs || []);
-            setPagination(data.pagination || pagination);
+            setPagination(data.pagination || { ...pagination, currentPage: page });
         } catch (error) {
             console.error("Error searching jobs:", error);
         } finally {
@@ -79,9 +97,44 @@ export default function Jobs() {
         }
     };
 
+    // Navigate to job detail page
+    const handleViewJobDetail = (jobId) => {
+        router.push(`/jobs/${jobId}`);
+    };
+
+    // Delete job
+    const handleDeleteClick = (job) => {
+        setJobToDelete(job);
+        setDeleteDialogOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!jobToDelete) return;
+
+        setDeleteLoading(true);
+        try {
+            await deleteJob(jobToDelete._id);
+            // Refresh job list after deletion
+            setJobs(jobs.filter((job) => job._id !== jobToDelete._id));
+            // Update total count in pagination
+            setPagination((prev) => ({
+                ...prev,
+                totalJobs: prev.totalJobs - 1,
+            }));
+        } catch (error) {
+            console.error("Error deleting job:", error);
+        } finally {
+            setDeleteLoading(false);
+            setDeleteDialogOpen(false);
+            setJobToDelete(null);
+        }
+    };
+
     // Clear filter helpers
     const clearJobCategory = () => setJobCategory("");
     const clearExperienceLevel = () => setExperienceLevel("");
+
+    // Handle opening job details dialog
 
     return (
         <div className="flex flex-col gap-6">
@@ -201,7 +254,7 @@ export default function Jobs() {
                     </Button>
                 </div>
                 <div className="flex items-start gap-2">
-                    <Button size="sm" variant="outline" type="button" className="h-9 gap-1">
+                    <Button size="sm" variant="outline" type="button" className="h-9 gap-1" onClick={() => router.push("/jobs/create")}>
                         <Plus className="h-4 w-4" />
                         Thêm công việc mới
                     </Button>
@@ -219,6 +272,7 @@ export default function Jobs() {
                             <TableHead>Ngành nghề</TableHead>
                             <TableHead>Mức lương</TableHead>
                             <TableHead>Cấp bậc</TableHead>
+                            <TableHead>Nguồn</TableHead>
                             <TableHead>Ngày hết hạn</TableHead>
                             <TableHead className="text-right">Thao tác</TableHead>
                         </TableRow>
@@ -240,7 +294,11 @@ export default function Jobs() {
                             jobs.map((job, index) => (
                                 <TableRow key={job._id || index}>
                                     <TableCell className="font-medium">{(pagination.currentPage - 1) * pagination.perPage + index + 1}</TableCell>
-                                    <TableCell>{job.title || "N/A"}</TableCell>
+                                    <TableCell>
+                                        <Link href={`/jobs/${job._id}`} className="text-blue-600 hover:underline">
+                                            {job.title || "N/A"}
+                                        </Link>
+                                    </TableCell>
                                     <TableCell>{job.company || "N/A"}</TableCell>
                                     <TableCell>
                                         <div className="flex items-center">{job.locationVI || job.location || "N/A"}</div>
@@ -249,10 +307,13 @@ export default function Jobs() {
                                     <TableCell>{job.salary || "Thỏa thuận"}</TableCell>
                                     <TableCell>{job.jobLevelVI || job.jobLevel || "N/A"}</TableCell>
                                     <TableCell>
+                                        <div className="flex items-center">{job.jobSource || "N/A"}</div>
+                                    </TableCell>
+                                    <TableCell>
                                         <div className="flex items-center">{job.expiredOn ? new Date(job.expiredOn).toLocaleDateString("vi-VN") : "N/A"}</div>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <DropdownMenu>
+                                        <DropdownMenu modal={false}>
                                             <DropdownMenuTrigger asChild>
                                                 <Button variant="ghost" size="icon">
                                                     <MoreHorizontal className="h-4 w-4" />
@@ -261,10 +322,12 @@ export default function Jobs() {
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                                                <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-                                                <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleViewJobDetail(job._id)}>Xem chi tiết</DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => router.push(`/jobs/edit/${job._id}`)}>Chỉnh sửa</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600">Xóa công việc</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-red-600" onClick={() => handleDeleteClick(job)}>
+                                                    Xóa công việc
+                                                </DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -275,32 +338,78 @@ export default function Jobs() {
                 </Table>
             </div>
 
+            {/* Job detail dialog */}
+
+            {/* Delete job confirmation dialog */}
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Xác nhận xóa công việc</AlertDialogTitle>
+                        <AlertDialogDescription>Bạn có chắc chắn muốn xóa công việc "{jobToDelete?.title}"? Hành động này không thể hoàn tác.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel disabled={deleteLoading}>Hủy</AlertDialogCancel>
+                        <AlertDialogAction onClick={confirmDelete} disabled={deleteLoading} className="bg-red-600 hover:bg-red-700 text-white">
+                            {deleteLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Đang xóa...
+                                </>
+                            ) : (
+                                <>
+                                    <Trash className="mr-2 h-4 w-4" />
+                                    Xóa
+                                </>
+                            )}
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+
             <div className="flex items-center justify-end gap-2">
                 <Button variant="outline" size="sm" disabled={pagination.currentPage <= 1} onClick={() => changePage(pagination.currentPage - 1)}>
                     Trước
                 </Button>
-                {Array.from({ length: Math.min(pagination.totalPages, 5) }, (_, i) => {
-                    // Hiển thị các trang xung quanh trang hiện tại
-                    let pageToShow = i + 1;
-                    if (pagination.totalPages > 5 && pagination.currentPage > 3) {
-                        pageToShow = pagination.currentPage - 2 + i;
-                        if (pageToShow > pagination.totalPages) {
-                            pageToShow = pagination.totalPages - (4 - i);
-                        }
-                    }
 
-                    return (
-                        <Button
-                            key={pageToShow}
-                            variant="outline"
-                            size="sm"
-                            className={`px-4 ${pagination.currentPage === pageToShow ? "font-medium bg-blue-100" : ""}`}
-                            onClick={() => changePage(pageToShow)}
-                        >
-                            {pageToShow}
-                        </Button>
-                    );
-                })}
+                <div className="flex items-center gap-1">
+                    {Array.from({ length: pagination.totalPages }).map((_, index) => {
+                        const pageNumber = index + 1;
+
+                        // Show first page, last page, and pages around current page
+                        if (
+                            pageNumber === 1 ||
+                            pageNumber === pagination.totalPages ||
+                            (pageNumber >= pagination.currentPage - 1 && pageNumber <= pagination.currentPage + 1)
+                        ) {
+                            return (
+                                <Button
+                                    key={pageNumber}
+                                    variant={pageNumber === pagination.currentPage ? "default" : "outline"}
+                                    size="sm"
+                                    onClick={() => changePage(pageNumber)}
+                                    className="w-8 h-8 p-0"
+                                >
+                                    {pageNumber}
+                                </Button>
+                            );
+                        }
+
+                        // Add ellipsis for skipped pages
+                        if (
+                            (pageNumber === 2 && pagination.currentPage > 3) ||
+                            (pageNumber === pagination.totalPages - 1 && pagination.currentPage < pagination.totalPages - 2)
+                        ) {
+                            return (
+                                <span key={pageNumber} className="px-1">
+                                    ...
+                                </span>
+                            );
+                        }
+
+                        return null;
+                    })}
+                </div>
+
                 <Button variant="outline" size="sm" disabled={pagination.currentPage >= pagination.totalPages} onClick={() => changePage(pagination.currentPage + 1)}>
                     Sau
                 </Button>
@@ -308,46 +417,3 @@ export default function Jobs() {
         </div>
     );
 }
-
-// Job categories mapping
-const jobCategoriesMap = {
-    "Academic/Education": "Học thuật/Giáo dục",
-    "Accounting/Auditing": "Kế toán/Kiểm toán",
-    "Administration/Office Support": "Hành chính/Hỗ trợ văn phòng",
-    "Agriculture/Livestock/Fishery": "Nông nghiệp/Chăn nuôi/Thủy sản",
-    "Architecture/Construction": "Kiến trúc/Xây dựng",
-    "Art, Media & Printing/Publishing": "Nghệ thuật, Truyền thông & In ấn/Xuất bản",
-    "Banking & Financial Services": "Ngân hàng & Dịch vụ tài chính",
-    "CEO & General Management": "CEO & Quản lý chung",
-    "Customer Service": "Dịch vụ khách hàng",
-    Design: "Thiết kế",
-    "Engineering & Sciences": "Kỹ thuật & Khoa học",
-    "Food and Beverage": "Thực phẩm và Đồ uống",
-    "Government/NGO": "Chính phủ/Tổ chức phi chính phủ",
-    "Healthcare/Medical Services": "Chăm sóc sức khỏe/Dịch vụ y tế",
-    "Hospitality/Tourism": "Khách sạn/Du lịch",
-    "Human Resources/Recruitment": "Nhân sự/Tuyển dụng",
-    "Information Technology/Telecommunications": "Công nghệ thông tin/Viễn thông",
-    Insurance: "Bảo hiểm",
-    Legal: "Pháp lý",
-    "Logistics/Import Export/Warehouse": "Hậu cần/Xuất nhập khẩu/Kho bãi",
-    Manufacturing: "Sản xuất",
-    "Marketing, Advertising/Communications": "Marketing, Quảng cáo/Truyền thông",
-    Pharmacy: "Dược phẩm",
-    "Real Estate": "Bất động sản",
-    "Retail/Consumer Products": "Bán lẻ/Sản phẩm tiêu dùng",
-    Sales: "Bán hàng",
-    Technician: "Kỹ thuật viên",
-    "Textiles, Garments/Footwear": "Dệt may, May mặc/Giày dép",
-    Transportation: "Vận tải",
-    Others: "Khác",
-};
-
-// Experience levels mapping
-const experienceLevelsMap = {
-    "Intern/Student": "Thực tập sinh/Sinh viên",
-    "Fresher/Entry level": "Mới tốt nghiệp/Mới vào nghề",
-    "Experienced \\(non-manager\\)": "Có kinh nghiệm (không phải quản lý)",
-    Manager: "Quản lý",
-    "Director and above": "Giám đốc trở lên",
-};
