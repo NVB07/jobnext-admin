@@ -269,6 +269,16 @@ export default function JobDetail() {
                         </CardContent>
                     </Card>
                 )}
+                {job.contact && (
+                    <Card className="border-blue-100 shadow-sm">
+                        <CardHeader>
+                            <h2 className="text-lg font-semibold">Ứng tuyển</h2>
+                        </CardHeader>
+                        <CardContent className="pt-0">
+                            <p className="text-sm text-foreground/80  whitespace-pre-line">{job?.contact}</p>
+                        </CardContent>
+                    </Card>
+                )}
             </div>
         </div>
     );

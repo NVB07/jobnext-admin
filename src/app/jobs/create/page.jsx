@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon, Link2 } from "lucide-react";
@@ -21,6 +21,7 @@ export default function CreateJob() {
     const router = useRouter();
     const [formData, setFormData] = useState({
         jobSource: "admin",
+        contact: "",
         title: "",
         alias: "",
         company: "",
@@ -164,34 +165,9 @@ export default function CreateJob() {
                                     placeholder="Nhập URL logo công ty (không bắt buộc)"
                                 />
                             </div>
-
-                            <div className="space-y-2">
-                                <label htmlFor="url" className="font-medium">
-                                    URL công việc *
-                                </label>
-                                <div className="flex">
-                                    <div className="relative flex-grow">
-                                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                            <Link2 className="w-4 h-4 text-gray-500" />
-                                        </div>
-                                        <Input
-                                            id="url"
-                                            name="url"
-                                            value={formData.url}
-                                            onChange={handleChange}
-                                            required
-                                            placeholder="https://example.com/job"
-                                            className="pl-10"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <label htmlFor="locationVI" className="font-medium">
-                                    Địa điểm (Tiếng Việt) *
+                                    Địa điểm *
                                 </label>
                                 <Input
                                     id="locationVI"
@@ -202,20 +178,6 @@ export default function CreateJob() {
                                     placeholder="Ví dụ: Thành phố Hồ Chí Minh"
                                 />
                             </div>
-
-                            {/* <div className="space-y-2">
-                                <label htmlFor="location" className="font-medium">
-                                    Địa điểm (Tiếng Anh - tự động)
-                                </label>
-                                <Input
-                                    id="location"
-                                    name="location"
-                                    value={formData.location}
-                                    readOnly
-                                    className="bg-gray-50"
-                                    placeholder="Tự điền từ thông tin tiếng Việt"
-                                />
-                            </div> */}
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,7 +269,7 @@ export default function CreateJob() {
                                 onChange={handleChange}
                                 required
                                 placeholder="Nhập mô tả chi tiết về công việc"
-                                className="min-h-[100px]"
+                                className="min-h-[200px]"
                             />
                         </div>
 
@@ -322,8 +284,36 @@ export default function CreateJob() {
                                 onChange={handleChange}
                                 required
                                 placeholder="Nhập yêu cầu về ứng viên"
-                                className="min-h-[100px]"
+                                className="min-h-[200px]"
                             />
+                        </div>
+
+                        <div className="space-y-2">
+                            <label htmlFor="contact" className="font-medium">
+                                Liên hệ *
+                            </label>
+                            <Textarea
+                                className="min-h-[100px]"
+                                id="contact"
+                                required
+                                name="contact"
+                                value={formData.contact}
+                                onChange={handleChange}
+                                placeholder="Ứng tuyển công việc vui lòng liên hệ Zalo, Facebook, liên kết hoặc mail"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label htmlFor="url" className="font-medium">
+                                URL công việc
+                            </label>
+                            <div className="flex">
+                                <div className="relative flex-grow">
+                                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <Link2 className="w-4 h-4 text-gray-500" />
+                                    </div>
+                                    <Input id="url" name="url" value={formData.url} onChange={handleChange} placeholder="https://example.com/job" className="pl-10" />
+                                </div>
+                            </div>
                         </div>
 
                         <div className="space-y-2">

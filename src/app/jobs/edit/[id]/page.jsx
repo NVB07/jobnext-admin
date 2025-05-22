@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Building, MapPin, Loader2, ArrowLeft, Save } from "lucide-react";
+import { Loader2, ArrowLeft, Save } from "lucide-react";
 import removeAccents from "remove-accents";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
@@ -14,7 +14,6 @@ import { getJob, updateJob } from "@/lib/api";
 import Link from "next/link";
 import { useToast } from "@/components/ui/toast";
 import { jobCategoriesMap, experienceLevelsMap } from "@/lib/constants";
-
 export default function EditJob() {
     const { id } = useParams();
     const router = useRouter();
@@ -25,6 +24,7 @@ export default function EditJob() {
     const [formData, setFormData] = useState({
         title: "",
         company: "",
+        contact: "",
         location: "",
         locationVI: "",
         groupJobFunctionV3Name: "",
@@ -59,6 +59,7 @@ export default function EditJob() {
                     company: jobData.company || "",
                     location: jobData.location || "",
                     locationVI: jobData.locationVI || "",
+                    contact: jobData.contact || "",
                     groupJobFunctionV3Name: jobData.groupJobFunctionV3Name || "",
                     groupJobFunctionV3NameVI: jobData.groupJobFunctionV3NameVI || "",
                     jobLevel: jobData.jobLevel === "Experienced (non-manager)" ? "Experienced \\(non-manager\\)" : jobData.jobLevel || "",
@@ -269,18 +270,26 @@ export default function EditJob() {
                         {job.jobSource === "admin" && (
                             <>
                                 <div className="space-y-2">
-                                    <Label htmlFor="description">Mô tả công việc</Label>
+                                    <Label htmlFor="description">
+                                        Mô tả công việc <span className="text-red-500">*</span>
+                                    </Label>
                                     <Textarea
+                                        className="min-h-[200px]"
                                         id="description"
                                         name="description"
+                                        required
                                         placeholder="Nhập mô tả công việc"
                                         value={formData.description}
                                         onChange={handleChange}
                                     />
                                 </div>
                                 <div className="space-y-2">
-                                    <Label htmlFor="jobRequirement">Yêu cầu công việc</Label>
+                                    <Label htmlFor="jobRequirement">
+                                        Yêu cầu công việc <span className="text-red-500">*</span>
+                                    </Label>
                                     <Textarea
+                                        className="min-h-[200px]"
+                                        required
                                         id="jobRequirement"
                                         name="jobRequirement"
                                         placeholder="Nhập yêu cầu công việc"
@@ -291,8 +300,10 @@ export default function EditJob() {
                             </>
                         )}
                         <div className="space-y-2">
-                            <Label htmlFor="skills">Kỹ năng yêu cầu (phân cách bằng dấu phẩy)</Label>
-                            <Input id="skills" name="skills" placeholder="Ví dụ: JavaScript, React, Node.js" value={formData.skills} onChange={handleChange} />
+                            <Label htmlFor="skills">
+                                Kỹ năng yêu cầu (phân cách bằng dấu phẩy) <span className="text-red-500">*</span>
+                            </Label>
+                            <Input id="skills" required name="skills" placeholder="Ví dụ: JavaScript, React, Node.js" value={formData.skills} onChange={handleChange} />
                         </div>
                     </CardContent>
                 </Card>
@@ -302,6 +313,20 @@ export default function EditJob() {
                         <h2 className="text-lg font-semibold">Thông tin bổ sung</h2>
                     </CardHeader>
                     <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="contact">
+                                Liên hệ ứng tuyển <span className="text-red-500">*</span>
+                            </Label>
+                            <Textarea
+                                className="min-h-[100px]"
+                                required
+                                id="contact"
+                                name="contact"
+                                placeholder="Ứng tuyển công việc vui lòng liên hệ Zalo, Facebook, liên kết hoặc mail"
+                                value={formData.contact}
+                                onChange={handleChange}
+                            />
+                        </div>
                         <div className="space-y-2">
                             <Label htmlFor="url">URL nguồn công việc</Label>
                             <Input id="url" name="url" placeholder="Nhập URL nguồn công việc" value={formData.url} onChange={handleChange} />
