@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { BarChart3, Briefcase, FileText, LayoutDashboard, LogOut, Menu, Settings, User, PieChart, Building2 } from "lucide-react";
+import { BarChart3, Briefcase, FileText, LayoutDashboard, LogOut, Menu, Settings, User, PieChart, Building2, Download } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -41,15 +41,20 @@ const navItems = [
         ],
     },
     {
+        title: "Quản lý Crawl",
+        href: "/crawl",
+        icon: Download,
+    },
+    {
         title: "Quản lý CV mẫu",
         href: "/cv",
         icon: FileText,
     },
-    {
-        title: "Cài đặt",
-        href: "/settings",
-        icon: Settings,
-    },
+    // {
+    //     title: "Cài đặt",
+    //     href: "/settings",
+    //     icon: Settings,
+    // },
 ];
 
 export default function SideBar() {
@@ -133,15 +138,6 @@ export default function SideBar() {
                 <nav className="flex-1 overflow-auto p-3">
                     <ul className="space-y-1.5">{renderNavItems(navItems)}</ul>
                 </nav>
-                <div className="border-t border-blue-800 p-4">
-                    <Link
-                        href="/login"
-                        className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-blue-800/30"
-                    >
-                        <LogOut className="h-5 w-5" />
-                        Đăng xuất
-                    </Link>
-                </div>
             </aside>
             <Sheet>
                 <SheetTrigger asChild>
@@ -160,15 +156,6 @@ export default function SideBar() {
                     <nav className="flex-1 overflow-auto p-3">
                         <ul className="space-y-1.5">{renderNavItems(navItems)}</ul>
                     </nav>
-                    <div className="border-t border-blue-800 p-4">
-                        <Link
-                            href="/login"
-                            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-red-300 transition-colors hover:bg-blue-800/30"
-                        >
-                            <LogOut className="h-5 w-5" />
-                            Đăng xuất
-                        </Link>
-                    </div>
                 </SheetContent>
             </Sheet>
         </div>

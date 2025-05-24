@@ -313,20 +313,22 @@ export default function EditJob() {
                         <h2 className="text-lg font-semibold">Thông tin bổ sung</h2>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="contact">
-                                Liên hệ ứng tuyển <span className="text-red-500">*</span>
-                            </Label>
-                            <Textarea
-                                className="min-h-[100px]"
-                                required
-                                id="contact"
-                                name="contact"
-                                placeholder="Ứng tuyển công việc vui lòng liên hệ Zalo, Facebook, liên kết hoặc mail"
-                                value={formData.contact}
-                                onChange={handleChange}
-                            />
-                        </div>
+                        {job.jobSource === "admin" && (
+                            <div className="space-y-2">
+                                <Label htmlFor="contact">
+                                    Liên hệ ứng tuyển <span className="text-red-500">*</span>
+                                </Label>
+                                <Textarea
+                                    className="min-h-[100px]"
+                                    required
+                                    id="contact"
+                                    name="contact"
+                                    placeholder="Ứng tuyển công việc vui lòng liên hệ Zalo, Facebook, liên kết hoặc mail"
+                                    value={formData.contact}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        )}
                         <div className="space-y-2">
                             <Label htmlFor="url">URL nguồn công việc</Label>
                             <Input id="url" name="url" placeholder="Nhập URL nguồn công việc" value={formData.url} onChange={handleChange} />

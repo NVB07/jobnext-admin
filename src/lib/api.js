@@ -1,14 +1,89 @@
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
-export const fetchUsers = async () => {
+// Helper function to add auth header to requests
+const getAuthHeaders = () => {
+    const token = localStorage.getItem("adminToken");
+    return token
+        ? {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+          }
+        : {
+              "Content-Type": "application/json",
+          };
+};
+
+// Admin User APIs
+export const fetchUsers = async (page = 1, perPage = 20) => {
     try {
-        const response = await fetch(`${API_URL}/users`);
+        const response = await fetch(`${API_URL}/admin/users?page=${page}&perPage=${perPage}`, {
+            headers: getAuthHeaders(),
+        });
         if (!response.ok) throw new Error("Failed to fetch users");
         const data = await response.json();
-        return { users: data }; // Server trả về mảng users trực tiếp
+        return {
+            users: data.data || [],
+            pagination: data.pagination || {},
+            success: data.success,
+        };
     } catch (error) {
         console.error("Error fetching users:", error);
-        return { users: [] };
+        return { users: [], pagination: {}, success: false };
+    }
+};
+
+export const fetchUserDetail = async (userId) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to fetch user detail");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching user detail:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const fetchUserStats = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/users/stats`, {
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to fetch user stats");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching user stats:", error);
+        return { success: false, stats: {} };
+    }
+};
+
+export const searchUsers = async (searchParams = {}) => {
+    try {
+        const { search, page = 1, perPage = 20 } = searchParams;
+        const queryParams = new URLSearchParams({
+            page: page.toString(),
+            perPage: perPage.toString(),
+        });
+
+        if (search) queryParams.append("search", search);
+
+        const response = await fetch(`${API_URL}/admin/users/search?${queryParams}`, {
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to search users");
+        const data = await response.json();
+        return {
+            users: data.data || [],
+            pagination: data.pagination || {},
+            searchQuery: data.searchQuery || {},
+            success: data.success,
+        };
+    } catch (error) {
+        console.error("Error searching users:", error);
+        return { users: [], pagination: {}, searchQuery: {}, success: false };
     }
 };
 
@@ -45,13 +120,13 @@ export const fetchStatistics = async () => {
         const jobsRes = await fetch(`${API_URL}/jobs?page=1&perPage=1`);
         const jobsData = await jobsRes.json();
 
-        // Lấy dữ liệu user và CV templates
-        const [usersRes, cvRes] = await Promise.all([fetch(`${API_URL}/users`), fetch(`${API_URL}/cvTemplate`)]);
+        // Lấy dữ liệu user và CV templates - ADD AUTH HEADERS
+        const [usersRes, cvRes] = await Promise.all([fetch(`${API_URL}/admin/users`, { headers: getAuthHeaders() }), fetch(`${API_URL}/cvTemplate`)]);
 
         const [usersData, cvData] = await Promise.all([usersRes.json(), cvRes.json()]);
 
         return {
-            totalUsers: usersData?.length || 0,
+            totalUsers: usersData?.pagination?.totalUsers || 0,
             totalJobs: jobsData.pagination?.totalJobs || 0,
             totalTemplates: cvData.data?.length || 0,
         };
@@ -70,9 +145,9 @@ export const fetchDashboardData = async () => {
         // Lấy thống kê số lượng từ API statistics
         const stats = await fetchStatistics();
 
-        // Lấy sample data từ mỗi collection (giới hạn số lượng để cải thiện hiệu suất)
+        // Lấy sample data từ mỗi collection (giới hạn số lượng để cải thiện hiệu suất) - ADD AUTH HEADERS
         const [usersRes, jobsRes, cvRes] = await Promise.all([
-            fetch(`${API_URL}/users`),
+            fetch(`${API_URL}/admin/users`, { headers: getAuthHeaders() }),
             fetch(`${API_URL}/jobs?page=1&perPage=10`), // Chỉ lấy 10 công việc
             fetch(`${API_URL}/cvTemplate`),
         ]);
@@ -258,3 +333,187 @@ export async function getJob(id) {
         throw error;
     }
 }
+
+export const deleteUser = async (userId) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/users/${userId}`, {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to delete user");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+// Crawl management APIs
+export const getCrawlStatus = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/crawl/status`, {
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to get crawl status");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error getting crawl status:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const startManualCrawl = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/crawl/start`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to start crawl");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error starting crawl:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const stopCrawl = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/crawl/stop`, {
+            method: "POST",
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to stop crawl");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error stopping crawl:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const getJobsToday = async (page = 1, perPage = 20) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/crawl/jobs/today?page=${page}&perPage=${perPage}`, {
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to get today's jobs");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error getting today's jobs:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const getExpiredJobs = async (page = 1, perPage = 20) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/crawl/jobs/expired?page=${page}&perPage=${perPage}`, {
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to get expired jobs");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error getting expired jobs:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const deleteExpiredJobs = async () => {
+    try {
+        const response = await fetch(`${API_URL}/admin/crawl/jobs/expired`, {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to delete expired jobs");
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error deleting expired jobs:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+// Admin Authentication APIs
+export const adminLogin = async (email, password) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/auth/login`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            throw new Error(data.message || "Đăng nhập thất bại");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error admin login:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const adminLogout = async () => {
+    try {
+        const token = localStorage.getItem("adminToken");
+        const response = await fetch(`${API_URL}/admin/auth/logout`, {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+
+        // Clear token regardless of response
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminEmail");
+
+        return data;
+    } catch (error) {
+        console.error("Error admin logout:", error);
+        // Clear token even on error
+        localStorage.removeItem("adminToken");
+        localStorage.removeItem("adminEmail");
+        return { success: false, error: error.message };
+    }
+};
+
+export const verifyAdminToken = async () => {
+    try {
+        const token = localStorage.getItem("adminToken");
+
+        if (!token) {
+            return { success: false, error: "No token found" };
+        }
+
+        const response = await fetch(`${API_URL}/admin/auth/verify`, {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+            // Clear invalid token
+            localStorage.removeItem("adminToken");
+            localStorage.removeItem("adminEmail");
+            throw new Error(data.message || "Token verification failed");
+        }
+
+        return data;
+    } catch (error) {
+        console.error("Error verifying admin token:", error);
+        return { success: false, error: error.message };
+    }
+};
