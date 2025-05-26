@@ -104,7 +104,7 @@ export const fetchJobs = async (page = 1, perPage = 10) => {
 
 export const fetchCvTemplates = async () => {
     try {
-        const response = await fetch(`${API_URL}/cvTemplate`);
+        const response = await fetch(`${API_URL}/admin/cvTemplate`);
         if (!response.ok) throw new Error("Failed to fetch CV templates");
         const data = await response.json();
         return { templates: data.data || [] }; // Dữ liệu trả về trong data.data
@@ -121,7 +121,7 @@ export const fetchStatistics = async () => {
         const jobsData = await jobsRes.json();
 
         // Lấy dữ liệu user và CV templates - ADD AUTH HEADERS
-        const [usersRes, cvRes] = await Promise.all([fetch(`${API_URL}/admin/users`, { headers: getAuthHeaders() }), fetch(`${API_URL}/cvTemplate`)]);
+        const [usersRes, cvRes] = await Promise.all([fetch(`${API_URL}/admin/users`, { headers: getAuthHeaders() }), fetch(`${API_URL}/admin/cvTemplate`)]);
 
         const [usersData, cvData] = await Promise.all([usersRes.json(), cvRes.json()]);
 
@@ -149,7 +149,7 @@ export const fetchDashboardData = async () => {
         const [usersRes, jobsRes, cvRes] = await Promise.all([
             fetch(`${API_URL}/admin/users`, { headers: getAuthHeaders() }),
             fetch(`${API_URL}/jobs?page=1&perPage=10`), // Chỉ lấy 10 công việc
-            fetch(`${API_URL}/cvTemplate`),
+            fetch(`${API_URL}/admin/cvTemplate`, { headers: getAuthHeaders() }),
         ]);
 
         if (!usersRes.ok || !jobsRes.ok || !cvRes.ok) {
@@ -514,6 +514,143 @@ export const verifyAdminToken = async () => {
         return data;
     } catch (error) {
         console.error("Error verifying admin token:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+// CV Management APIs for Canvas Components
+export const GET_METHOD = async (urlPath, params = {}, headers = {}) => {
+    try {
+        const config = {
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+                ...headers,
+            },
+        };
+
+        // Add query parameters if provided
+        const queryParams = new URLSearchParams(params);
+        const url = queryParams.toString() ? `${API_URL}/${urlPath}?${queryParams}` : `${API_URL}/${urlPath}`;
+
+        const response = await fetch(url, config);
+        if (!response.ok) throw new Error(`GET request failed: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Lỗi khi lấy dữ liệu:", error.message);
+        return null;
+    }
+};
+
+export const POST_METHOD = async (urlPath, data = null, headers = {}) => {
+    try {
+        const config = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+                ...headers,
+            },
+            body: data ? JSON.stringify(data) : null,
+        };
+
+        const response = await fetch(`${API_URL}/${urlPath}`, config);
+        if (!response.ok) throw new Error(`POST request failed: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Lỗi khi gửi dữ liệu:", error.message);
+        return null;
+    }
+};
+
+export const PATCH_METHOD = async (urlPath, data, headers = {}) => {
+    try {
+        const config = {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+                ...headers,
+            },
+            body: JSON.stringify(data),
+        };
+
+        const response = await fetch(`${API_URL}/${urlPath}`, config);
+        if (!response.ok) throw new Error(`PATCH request failed: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Lỗi khi cập nhật dữ liệu:", error.message);
+        return null;
+    }
+};
+
+export const DELETE_METHOD = async (urlPath, headers = {}) => {
+    try {
+        const config = {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+                ...headers,
+            },
+        };
+
+        const response = await fetch(`${API_URL}/${urlPath}`, config);
+        if (!response.ok) throw new Error(`DELETE request failed: ${response.status}`);
+        return await response.json();
+    } catch (error) {
+        console.error("Lỗi khi xóa dữ liệu:", error.message);
+        return null;
+    }
+};
+
+// CV Template Management APIs for Admin
+export const createCvTemplate = async (templateData) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/cvTemplate`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify(templateData),
+        });
+        if (!response.ok) throw new Error("Failed to create CV template");
+        return await response.json();
+    } catch (error) {
+        console.error("Error creating CV template:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const updateCvTemplate = async (templateId, templateData) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/cvTemplate/${templateId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                ...getAuthHeaders(),
+            },
+            body: JSON.stringify(templateData),
+        });
+        if (!response.ok) throw new Error("Failed to update CV template");
+        return await response.json();
+    } catch (error) {
+        console.error("Error updating CV template:", error);
+        return { success: false, error: error.message };
+    }
+};
+
+export const deleteCvTemplate = async (templateId) => {
+    try {
+        const response = await fetch(`${API_URL}/admin/cvTemplate/${templateId}`, {
+            method: "DELETE",
+            headers: getAuthHeaders(),
+        });
+        if (!response.ok) throw new Error("Failed to delete CV template");
+        return await response.json();
+    } catch (error) {
+        console.error("Error deleting CV template:", error);
         return { success: false, error: error.message };
     }
 };

@@ -111,7 +111,6 @@ export default function CrawlPage() {
         loadExpiredJobs();
     }, [loadFullCrawlStatus, loadTodayJobs, loadExpiredJobs]);
 
-    // Auto refresh khi crawl đang chạy - CHỈ refresh status, KHÔNG reload jobs
     useEffect(() => {
         let interval;
         if (crawlData?.crawlStatus?.isRunning) {
@@ -297,9 +296,7 @@ export default function CrawlPage() {
                         <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">
-                            {crawlStatus?.isRunning ? `${crawlStatus.currentPage || 0}/${crawlStatus.totalPages || "?"}` : "Không chạy"}
-                        </div>
+                        <div className="text-2xl font-bold">{crawlStatus?.isRunning ? `${crawlStatus.currentPage || 0}/${100 || "?"}` : "Không chạy"}</div>
                         {crawlStatus?.isRunning && <Progress value={progressValue} className="mt-2" />}
                     </CardContent>
                 </Card>
@@ -365,8 +362,8 @@ export default function CrawlPage() {
                     <RefreshCw className="h-4 w-4 animate-spin" />
                     <AlertTitle>Crawl đang chạy</AlertTitle>
                     <AlertDescription>
-                        Đang xử lý trang {crawlStatus.currentPage || 0}/{crawlStatus.totalPages || "?"} - Đã thu thập {crawlStatus.jobsProcessed || 0} jobs - Thời gian
-                        chạy: {crawlStatus.startTime ? formatDuration(new Date() - new Date(crawlStatus.startTime)) : "N/A"}
+                        Đang xử lý trang {crawlStatus.currentPage || 0} - Thời gian chạy:{" "}
+                        {crawlStatus.startTime ? formatDuration(new Date() - new Date(crawlStatus.startTime)) : "N/A"}
                         {crawlStatus.errors?.length > 0 && <div className="mt-2 text-red-600">Có {crawlStatus.errors.length} lỗi xảy ra</div>}
                     </AlertDescription>
                 </Alert>

@@ -74,7 +74,7 @@ export default function DashboardPage() {
         <div className="flex flex-col gap-6">
             <div>
                 <h1 className="text-3xl font-bold tracking-tight text-blue-900">Dashboard</h1>
-                <p className="text-muted-foreground">Tổng quan về hệ thống quản lý tuyển dụng</p>
+                <p className="text-muted-foreground">Tổng quan về hệ thống </p>
             </div>
 
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { verifyAdminToken, adminLogout } from "@/lib/api";
 import { useRouter } from "next/navigation";
+import { setCookie, getCookie, deleteCookie } from "@/lib/cookies";
 
 const AuthContext = createContext({});
 
@@ -32,6 +33,7 @@ export const AuthProvider = ({ children }) => {
                 // Clear any invalid tokens
                 localStorage.removeItem("adminToken");
                 localStorage.removeItem("adminEmail");
+                deleteCookie("adminToken");
             }
         } catch (error) {
             console.error("Auth check error:", error);
@@ -43,8 +45,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     const login = (token, adminData) => {
+        // Store in localStorage for client-side access
         localStorage.setItem("adminToken", token);
         localStorage.setItem("adminEmail", adminData.email);
+
+        // Store in cookies for middleware access
+        setCookie("adminToken", token, 7); // 7 days expiry
+
         setAdmin(adminData);
         setIsAuthenticated(true);
     };
@@ -59,6 +66,7 @@ export const AuthProvider = ({ children }) => {
             setIsAuthenticated(false);
             localStorage.removeItem("adminToken");
             localStorage.removeItem("adminEmail");
+            deleteCookie("adminToken");
             router.push("/login");
         }
     };

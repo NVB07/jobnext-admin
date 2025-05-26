@@ -1,19 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, FileText, MoreHorizontal, Plus, Search } from "lucide-react";
-
+import { FileText, Plus, Search, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { fetchCvTemplates } from "@/lib/api";
-
+import Link from "next/link";
 export default function CVTemplate() {
     const [templates, setTemplates] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
+    const [selectedTemplate, setSelectedTemplate] = useState(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const router = useRouter();
 
     useEffect(() => {
         const loadTemplates = async () => {
@@ -38,6 +41,16 @@ export default function CVTemplate() {
         return (template.name || "").toLowerCase().includes(searchLower);
     });
 
+    const handleImageClick = (template) => {
+        setSelectedTemplate(template);
+        setIsDialogOpen(true);
+    };
+
+    const closeDialog = () => {
+        setIsDialogOpen(false);
+        setSelectedTemplate(null);
+    };
+
     return (
         <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2">
@@ -53,92 +66,106 @@ export default function CVTemplate() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button size="sm" className="h-9 gap-1">
-                        <Plus className="h-4 w-4" />
-                        Thêm mẫu CV mới
-                    </Button>
+                    <Link target="_blank" href="/cv-update">
+                        <Button size="sm" className="h-9 gap-1">
+                            <Plus className="h-4 w-4" />
+                            Trình quản lý CV
+                        </Button>
+                    </Link>
                 </div>
             </div>
 
-            <div className="rounded-md border">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>Tên mẫu</TableHead>
-                            <TableHead>Xem trước</TableHead>
-                            <TableHead>Ngày tạo</TableHead>
-                            <TableHead className="text-right">Thao tác</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {loading ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
-                                    Đang tải dữ liệu...
-                                </TableCell>
-                            </TableRow>
-                        ) : filteredTemplates.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="h-24 text-center">
-                                    Không tìm thấy mẫu CV nào.
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            filteredTemplates.map((template, index) => (
-                                <TableRow key={template._id || index}>
-                                    <TableCell className="font-medium">{index + 1}</TableCell>
-                                    <TableCell>
-                                        <div className="flex items-center gap-2">
-                                            <FileText className="h-4 w-4 text-blue-500" />
-                                            {template.name || "N/A"}
+            {loading ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {[...Array(8)].map((_, index) => (
+                        <Card key={index} className="animate-pulse">
+                            <CardHeader className="pb-3">
+                                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                            </CardHeader>
+                            <CardContent className="pb-3">
+                                <div className="aspect-[3/4] bg-gray-200 rounded-md"></div>
+                            </CardContent>
+                            <CardFooter className="pt-3">
+                                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+            ) : filteredTemplates.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <FileText className="h-12 w-12 text-gray-400 mb-4" />
+                    <h3 className="text-lg font-medium text-gray-900 mb-2">Không tìm thấy mẫu CV nào</h3>
+                    <p className="text-gray-500 mb-4">Hãy thử tìm kiếm với từ khóa khác hoặc thêm mẫu CV mới.</p>
+                    <Button onClick={() => router.push("/cv-update")}>
+                        <Plus className="h-4 w-4 mr-2" />
+                        Trình quản lý CV
+                    </Button>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredTemplates.map((template, index) => (
+                        <Card key={template._id || index} className="group hover:shadow-lg transition-shadow duration-200">
+                            <CardHeader className="pb-3">
+                                <div className="flex items-center gap-2">
+                                    <FileText className="h-4 w-4 text-blue-500" />
+                                    <h3 className="font-medium text-sm truncate">{template.name || "N/A"}</h3>
+                                </div>
+                                <Badge variant="secondary" className="w-fit text-xs">
+                                    #{index + 1}
+                                </Badge>
+                            </CardHeader>
+                            <CardContent className="pb-3">
+                                <div className="aspect-[3/4] rounded-md overflow-hidden border bg-gray-50">
+                                    {template.preview ? (
+                                        <img
+                                            src={template.preview}
+                                            alt={template.name || "CV Preview"}
+                                            className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-transform duration-200"
+                                            onClick={() => handleImageClick(template)}
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center">
+                                            <FileText className="h-12 w-12 text-gray-400" />
                                         </div>
-                                    </TableCell>
-                                    <TableCell>
-                                        {template.preview ? (
-                                            <a href={template.preview} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 underline">
-                                                Xem trước
-                                            </a>
-                                        ) : (
-                                            "Không có"
-                                        )}
-                                    </TableCell>
-                                    <TableCell>{template.createdAt ? new Date(template.createdAt).toLocaleDateString("vi-VN") : "N/A"}</TableCell>
-                                    <TableCell className="text-right">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon">
-                                                    <MoreHorizontal className="h-4 w-4" />
-                                                    <span className="sr-only">Mở menu</span>
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end">
-                                                <DropdownMenuLabel>Thao tác</DropdownMenuLabel>
-                                                <DropdownMenuItem>Xem chi tiết</DropdownMenuItem>
-                                                <DropdownMenuItem>Chỉnh sửa</DropdownMenuItem>
-                                                <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600">Xóa mẫu CV</DropdownMenuItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        )}
-                    </TableBody>
-                </Table>
-            </div>
+                                    )}
+                                </div>
+                            </CardContent>
+                            <CardFooter className="pt-3">
+                                <span className="text-xs text-muted-foreground">
+                                    {template.createdAt ? new Date(template.createdAt).toLocaleDateString("vi-VN") : "N/A"}
+                                </span>
+                            </CardFooter>
+                        </Card>
+                    ))}
+                </div>
+            )}
 
-            <div className="flex items-center justify-end gap-2">
-                <Button variant="outline" size="sm" disabled>
-                    Trước
-                </Button>
-                <Button variant="outline" size="sm" className="px-4 font-medium">
-                    1
-                </Button>
-                <Button variant="outline" size="sm">
-                    Sau
-                </Button>
-            </div>
+            {/* Dialog for viewing CV template image */}
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogContent className="max-w-4xl max-h-[90vh] p-0">
+                    <DialogHeader className="p-6 pb-2">
+                        <DialogTitle className="flex items-center gap-2">
+                            <FileText className="h-5 w-5 text-blue-500" />
+                            {selectedTemplate?.name || "CV Template"}
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="px-6 pb-6">
+                        {selectedTemplate?.preview ? (
+                            <div className="flex justify-center">
+                                <img
+                                    src={selectedTemplate.preview}
+                                    alt={selectedTemplate.name || "CV Preview"}
+                                    className="max-w-full max-h-[70vh] object-contain rounded-md border"
+                                />
+                            </div>
+                        ) : (
+                            <div className="flex items-center justify-center h-96 bg-gray-100 rounded-md">
+                                <FileText className="h-16 w-16 text-gray-400" />
+                            </div>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

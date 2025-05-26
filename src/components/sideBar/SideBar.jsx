@@ -130,7 +130,7 @@ export default function SideBar() {
                 )}
             >
                 <div className="flex h-16 items-center border-b border-blue-800 px-4">
-                    <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-white">
+                    <Link href="/" className="flex items-center gap-2 font-semibold text-white">
                         <BarChart3 className="h-6 w-6 text-blue-300" />
                         <span className="text-xl">Admin Portal</span>
                     </Link>
@@ -148,7 +148,7 @@ export default function SideBar() {
                 </SheetTrigger>
                 <SheetContent side="left" className="p-0 bg-gradient-to-b from-blue-900 to-indigo-900 border-r-0">
                     <div className="flex h-16 items-center border-b border-blue-800 px-4">
-                        <Link href="/dashboard" className="flex items-center gap-2 font-semibold text-white">
+                        <Link href="/" className="flex items-center gap-2 font-semibold text-white">
                             <BarChart3 className="h-6 w-6 text-blue-300" />
                             <span className="text-xl">Admin Portal</span>
                         </Link>
