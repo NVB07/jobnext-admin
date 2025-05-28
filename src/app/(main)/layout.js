@@ -9,6 +9,9 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
     title: "JobNext Admin - Quản lý hệ thống tuyển dụng",
     description: "Trang quản lý hệ thống tuyển dụng JobNext",
+    icons: {
+        icon: "/favicon.ico",
+    },
 };
 
 export default function RootLayout({ children }) {

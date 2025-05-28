@@ -1,5 +1,4 @@
 import EditorLayout from "@/components/canvas/EditorLayout";
-
 const CVUpdatePage = () => {
     return (
         <div className="w-full">

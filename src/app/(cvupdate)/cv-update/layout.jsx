@@ -8,11 +8,9 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 const inter = Inter({ subsets: ["latin"] });
 
-// import AuthContextProvider from "@/context/AuthContextProvider";
-
 export const metadata = {
-    title: "JobNext Admin | Trình quản lý CV",
-    description: "Trình quản lý CV cho hệ thống JobNext",
+    title: "JobNext Admin - Quản lý hệ thống tuyển dụng",
+    description: "Trang quản lý hệ thống tuyển dụng JobNext",
     icons: {
         icon: "/favicon.ico",
     },
