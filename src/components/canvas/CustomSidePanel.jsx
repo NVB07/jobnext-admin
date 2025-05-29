@@ -545,8 +545,8 @@ export const SaveTemplatePanel = observer(({ store, currentTemplate, setCurrentT
                     <p style={{ margin: "0 0 8px 0", fontWeight: "bold" }}>Hướng dẫn:</p>
                     <ul style={{ margin: 0, paddingLeft: "16px" }}>
                         <li>Nhập tên cho template</li>
-                        <li>Chọn ảnh preview hoặc dùng "Tạo Preview Tự Động"</li>
-                        <li>Click "Lưu Template" để hoàn tất</li>
+                        <li>Chọn ảnh preview hoặc dùng &quot;Tạo Preview Tự Động&quot;</li>
+                        <li>Click &quot;Lưu Template&quot; để hoàn tất</li>
                     </ul>
                 </div>
             </div>

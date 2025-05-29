@@ -345,7 +345,9 @@ export default function Jobs() {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Xác nhận xóa công việc</AlertDialogTitle>
-                        <AlertDialogDescription>Bạn có chắc chắn muốn xóa công việc "{jobToDelete?.title}"? Hành động này không thể hoàn tác.</AlertDialogDescription>
+                        <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa công việc &quot;{jobToDelete?.title}&quot;? Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel disabled={deleteLoading}>Hủy</AlertDialogCancel>

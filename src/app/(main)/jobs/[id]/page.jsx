@@ -5,9 +5,7 @@ import { useParams } from "next/navigation";
 import { Building, MapPin, Loader2, ArrowLeft, ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import Image from "next/image";
 import Link from "next/link";
 import { getJob } from "@/lib/api";
 
@@ -257,7 +255,7 @@ export default function JobDetail() {
                         <CardContent className="py-8 text-center">
                             <p className="text-orange-500 font-medium mb-2">Không thể tải nội dung chi tiết từ nguồn gốc.</p>
                             <p className="text-sm text-muted-foreground">
-                                Bạn có thể xem thông tin đầy đủ tại trang gốc bằng cách nhấp vào nút "Mở trang gốc" phía trên.
+                                Bạn có thể xem thông tin đầy đủ tại trang gốc bằng cách nhấp vào nút &quot;Mở trang gốc&quot; phía trên.
                             </p>
                         </CardContent>
                     </Card>
