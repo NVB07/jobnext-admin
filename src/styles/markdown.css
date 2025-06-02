@@ -1,0 +1,296 @@
+/* Reset cơ bản chỉ áp dụng trong phạm vi .custom-html-style */
+.custom-html-style * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    box-sizing: border-box;
+}
+
+/* Thẻ gốc */
+.custom-html-style html {
+    display: block;
+    font-size: 16px;
+    line-height: 1;
+}
+
+.custom-html-style body {
+    display: block;
+    font-family: sans-serif;
+    line-height: 1;
+    color: #000;
+    background-color: #fff;
+}
+
+/* Thẻ tiêu đề */
+.custom-html-style h1,
+.custom-html-style h2,
+.custom-html-style h3,
+.custom-html-style h4,
+.custom-html-style h5,
+.custom-html-style h6 {
+    display: block;
+    font-weight: bold;
+    margin: 1em 0 0.5em 0;
+}
+
+.custom-html-style h1 {
+    font-size: 2em;
+}
+.custom-html-style h2 {
+    font-size: 1.5em;
+}
+.custom-html-style h3 {
+    font-size: 1.17em;
+}
+.custom-html-style h4 {
+    font-size: 1em;
+}
+.custom-html-style h5 {
+    font-size: 0.83em;
+}
+.custom-html-style h6 {
+    font-size: 0.67em;
+}
+
+/* Thẻ đoạn văn và nội dung */
+.custom-html-style p {
+    display: block;
+    margin: 1em 0;
+    line-height: 1.6;
+}
+
+.custom-html-style pre {
+    background-color: #f6f8fa;
+    font-size: 14px;
+    border-radius: 8px !important;
+    overflow-x: auto;
+    padding: 12px;
+    margin: 1em 0;
+    font-family: "Courier New", monospace;
+    border: 1px solid #e1e4e8;
+}
+
+.custom-html-style blockquote {
+    border-radius: 8px !important;
+    display: block;
+    padding: 12px 16px;
+    background-color: #f6f8fa;
+    border-left: 4px solid #d1d9e0;
+    margin: 1em 0;
+}
+
+.custom-html-style address {
+    display: block;
+    font-style: italic;
+}
+
+.custom-html-style ol,
+.custom-html-style ul {
+    font-size: 14px;
+    line-height: 1.6;
+    padding-left: 20px !important;
+    margin: 1em 0;
+}
+
+/* Thẻ danh sách */
+.custom-html-style ul {
+    display: block;
+    list-style-type: disc;
+}
+
+.custom-html-style ol {
+    display: block;
+    list-style-type: decimal;
+}
+
+.custom-html-style li {
+    display: list-item;
+    margin: 0.5em 0;
+}
+
+.custom-html-style dl {
+    display: block;
+}
+
+.custom-html-style dt {
+    display: block;
+    font-weight: bold;
+}
+
+.custom-html-style dd {
+    display: block;
+    margin-left: 40px;
+}
+
+/* Thẻ bảng */
+.custom-html-style table {
+    display: table;
+    border-collapse: collapse;
+    width: 100%;
+    margin: 1em 0;
+}
+
+.custom-html-style thead {
+    display: table-header-group;
+}
+
+.custom-html-style tbody {
+    display: table-row-group;
+}
+
+.custom-html-style tfoot {
+    display: table-footer-group;
+}
+
+.custom-html-style tr {
+    display: table-row;
+}
+
+.custom-html-style th {
+    display: table-cell;
+    font-weight: bold;
+    text-align: center;
+    background-color: #f6f8fa;
+    border: 1px solid #d1d9e0;
+    padding: 8px 12px;
+}
+
+.custom-html-style td {
+    display: table-cell;
+    text-align: left;
+    border: 1px solid #d1d9e0;
+    padding: 8px 12px;
+}
+
+.custom-html-style caption {
+    display: table-caption;
+    text-align: center;
+}
+
+/* Thẻ liên kết */
+.custom-html-style a {
+    display: inline;
+    color: #0366d6;
+    text-decoration: none;
+}
+
+.custom-html-style a:hover {
+    text-decoration: underline;
+}
+
+/* Thẻ văn bản */
+.custom-html-style strong {
+    display: inline;
+    font-weight: bold;
+}
+
+.custom-html-style em {
+    display: inline;
+    font-style: italic;
+}
+
+.custom-html-style b {
+    display: inline;
+    font-weight: bold;
+}
+
+.custom-html-style i {
+    display: inline;
+    font-style: italic;
+}
+
+.custom-html-style u {
+    display: inline;
+    text-decoration: underline;
+}
+
+.custom-html-style s {
+    display: inline;
+    text-decoration: line-through;
+}
+
+.custom-html-style sub {
+    display: inline;
+    vertical-align: sub;
+    font-size: smaller;
+}
+
+.custom-html-style sup {
+    display: inline;
+    vertical-align: super;
+    font-size: smaller;
+}
+
+.custom-html-style code {
+    background-color: #f6f8fa;
+    border-radius: 4px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9em;
+    padding: 2px 4px;
+    border: 1px solid #e1e4e8;
+}
+
+.custom-html-style kbd {
+    display: inline;
+    font-family: monospace;
+    background-color: #f6f8fa;
+    padding: 2px 4px;
+    border-radius: 3px;
+    border: 1px solid #d1d9e0;
+}
+
+.custom-html-style samp {
+    display: inline;
+    font-family: monospace;
+}
+
+.custom-html-style var {
+    display: inline;
+    font-style: italic;
+    font-family: monospace;
+}
+
+.custom-html-style div {
+    display: block;
+}
+
+.custom-html-style span {
+    display: inline;
+}
+
+.custom-html-style hr {
+    border: none;
+    height: 1px;
+    background-color: #e1e4e8;
+    margin: 2em 0;
+}
+
+.custom-html-style img {
+    display: inline;
+    border-style: none;
+    max-width: 100%;
+    height: auto;
+    margin: 0.5em 0;
+}
+
+.custom-html-style figure {
+    display: block;
+    margin: 1em 0;
+}
+
+.custom-html-style figcaption {
+    display: block;
+    text-align: center;
+    font-style: italic;
+    margin-top: 0.5em;
+}
+
+/* Section để chứa nội dung markdown */
+.section.sec-html.visible {
+    display: block;
+    margin: 0;
+    padding: 0;
+}

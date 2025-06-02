@@ -39,7 +39,7 @@ export function ToastProvider({ children }) {
 
 function ToastContainer({ toasts, removeToast }) {
     return (
-        <div className="fixed top-0 left-0 z-50 p-4 space-y-2 w-full max-w-sm">
+        <div className="fixed top-4 right-4 z-50 space-y-2 w-full max-w-sm">
             {toasts.map((toast) => (
                 <Toast key={toast.id} toast={toast} onClose={() => removeToast(toast.id)} />
             ))}

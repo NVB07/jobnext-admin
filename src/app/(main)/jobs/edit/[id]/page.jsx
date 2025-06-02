@@ -88,7 +88,6 @@ export default function EditJob() {
     // Handle form field changes
     const handleChange = (e) => {
         const { name, value } = e.target;
-        console.log(name, value);
         if (name === "locationVI") {
             setFormData((prev) => ({
                 ...prev,
@@ -105,7 +104,6 @@ export default function EditJob() {
 
     // Handle select field changes
     const handleSelectChange = (name) => (value) => {
-        console.log(name, value);
         if (name === "groupJobFunctionV3Name") {
             setFormData((prev) => ({
                 ...prev,

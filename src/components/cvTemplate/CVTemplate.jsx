@@ -23,7 +23,6 @@ export default function CVTemplate() {
             try {
                 setLoading(true);
                 const data = await fetchCvTemplates();
-                console.log("CV Templates data:", data);
                 setTemplates(data.templates || []);
             } catch (error) {
                 console.error("Error loading CV templates:", error);
