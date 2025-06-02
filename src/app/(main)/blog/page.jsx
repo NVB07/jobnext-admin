@@ -444,7 +444,9 @@ const BlogPage = () => {
                 <AlertDialogContent>
                     <AlertDialogHeader>
                         <AlertDialogTitle>Xác nhận xóa</AlertDialogTitle>
-                        <AlertDialogDescription>Bạn có chắc chắn muốn xóa blog "{selectedBlog?.title}"? Hành động này không thể hoàn tác.</AlertDialogDescription>
+                        <AlertDialogDescription>
+                            Bạn có chắc chắn muốn xóa blog &quot;{selectedBlog?.title}&quot;? Hành động này không thể hoàn tác.
+                        </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                         <AlertDialogCancel>Hủy</AlertDialogCancel>

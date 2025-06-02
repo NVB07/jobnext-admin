@@ -1,6 +1,5 @@
 "use client";
 const MAIN_URL = process.env.NEXT_PUBLIC_MAIN_URL;
-
 import { useState, useEffect } from "react";
 import React from "react";
 import { observer } from "mobx-react-lite";
@@ -323,6 +322,42 @@ export const SaveTemplatePanel = observer(({ store, currentTemplate, setCurrentT
     const [isSaving, setIsSaving] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
+    // Function to compress image
+    const compressImage = (file, maxWidth = 400, maxHeight = 300, quality = 0.8) => {
+        return new Promise((resolve) => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const img = new Image();
+
+            img.onload = () => {
+                // Calculate new dimensions
+                let { width, height } = img;
+
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+
+                canvas.width = width;
+                canvas.height = height;
+
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                const compressedDataUrl = canvas.toDataURL("image/jpeg", quality);
+                resolve(compressedDataUrl);
+            };
+
+            if (typeof file === "string") {
+                img.src = file; // If it's already a data URL
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => (img.src = e.target.result);
+                reader.readAsDataURL(file);
+            }
+        });
+    };
+
     // Reset form when currentTemplate changes
     useEffect(() => {
         if (currentTemplate) {
@@ -335,22 +370,32 @@ export const SaveTemplatePanel = observer(({ store, currentTemplate, setCurrentT
         setPreviewFile(null);
     }, [currentTemplate]);
 
-    const handleImageChange = (e) => {
+    const handleImageChange = async (e) => {
         const file = e.target.files[0];
         if (file) {
             setPreviewFile(file);
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                setPreviewImage(e.target.result);
-            };
-            reader.readAsDataURL(file);
+            try {
+                // Compress the image before setting it
+                const compressedImage = await compressImage(file);
+                setPreviewImage(compressedImage);
+            } catch (error) {
+                console.error("Error compressing image:", error);
+                // Fallback to original method if compression fails
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    setPreviewImage(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
         }
     };
 
     const generateAutoPreview = async () => {
         try {
             const dataURL = await store.pages[0].store.toDataURL({ pixelRatio: 1 });
-            setPreviewImage(dataURL);
+            // Compress the auto-generated preview
+            const compressedPreview = await compressImage(dataURL, 400, 300, 0.7);
+            setPreviewImage(compressedPreview);
             setPreviewFile(null);
         } catch (error) {
             console.error("Error generating preview:", error);
@@ -373,9 +418,17 @@ export const SaveTemplatePanel = observer(({ store, currentTemplate, setCurrentT
         try {
             const json = store.toJSON();
 
+            // Double check image compression before saving
+            let finalPreviewImage = previewImage;
+            if (previewImage.length > 500000) {
+                // If base64 is larger than ~500KB
+                console.log("Image still too large, applying additional compression...");
+                finalPreviewImage = await compressImage(previewImage, 300, 200, 0.6);
+            }
+
             const templateData = {
                 json: JSON.stringify(json),
-                preview: previewImage,
+                preview: finalPreviewImage,
                 name: templateName.trim(),
             };
 
@@ -464,6 +517,21 @@ export const SaveTemplatePanel = observer(({ store, currentTemplate, setCurrentT
                                     borderRadius: "4px",
                                 }}
                             />
+                            {/* Size indicator */}
+                            <div
+                                style={{
+                                    fontSize: "12px",
+                                    color: "#666",
+                                    marginTop: "4px",
+                                    textAlign: "center",
+                                    padding: "4px",
+                                    backgroundColor: previewImage.length > 500000 ? "#ffebee" : "#e8f5e8",
+                                    borderRadius: "4px",
+                                }}
+                            >
+                                Kích thước: {Math.round(previewImage.length / 1024)} KB
+                                {previewImage.length > 500000 && <span style={{ color: "#d32f2f", fontWeight: "bold" }}> (Quá lớn - sẽ nén thêm khi lưu)</span>}
+                            </div>
                         </div>
                     )}
 
@@ -546,6 +614,8 @@ export const SaveTemplatePanel = observer(({ store, currentTemplate, setCurrentT
                     <ul style={{ margin: 0, paddingLeft: "16px" }}>
                         <li>Nhập tên cho template</li>
                         <li>Chọn ảnh preview hoặc dùng &quot;Tạo Preview Tự Động&quot;</li>
+                        <li>Ảnh sẽ được tự động nén để tối ưu dung lượng</li>
+                        <li>Kích thước khuyến nghị: dưới 300KB</li>
                         <li>Click &quot;Lưu Template&quot; để hoàn tất</li>
                     </ul>
                 </div>
