@@ -50,6 +50,11 @@ const navItems = [
         href: "/cv",
         icon: FileText,
     },
+    {
+        title: "Quản lý Blog",
+        href: "/blog",
+        icon: FileText,
+    },
     // {
     //     title: "Cài đặt",
     //     href: "/settings",

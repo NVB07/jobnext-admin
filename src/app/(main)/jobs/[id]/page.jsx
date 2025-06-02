@@ -58,19 +58,20 @@ export default function JobDetail() {
             });
 
             const result = await response.json();
-            if (result.success) {
-                const parser = new DOMParser();
-                const doc = parser.parseFromString(result.data, "text/html");
-                const sections = doc.querySelectorAll(".sc-1671001a-4.gDSEwb");
-
-                if (sections && sections.length >= 2) {
-                    const [jobDes, jobReq] = sections;
-                    setJobDescription(jobDes);
-                    setJobRequirements(jobReq);
-                }
+            if (result.success && result.data) {
+                // Data is already processed on server side
+                setJobDescription(result.data.jobDescription);
+                setJobRequirements(result.data.jobRequirements);
+            } else {
+                console.error("Failed to fetch job details:", result.message);
+                // Set fallback content
+                setJobDescription("Không thể tải mô tả công việc từ nguồn gốc");
+                setJobRequirements("Không thể tải yêu cầu công việc từ nguồn gốc");
             }
         } catch (error) {
             console.error("Error fetching job details:", error);
+            setJobDescription("Không thể tải mô tả công việc từ nguồn gốc");
+            setJobRequirements("Không thể tải yêu cầu công việc từ nguồn gốc");
         } finally {
             setDetailLoading(false);
         }
@@ -210,42 +211,24 @@ export default function JobDetail() {
                     </Card>
                 ) : jobDescription || jobRequirements ? (
                     <>
-                        {jobDescription && job.jobSource !== "admin" ? (
+                        {jobDescription && (
                             <Card className="border-blue-100 shadow-sm">
                                 <CardHeader>
                                     <h2 className="text-lg font-semibold">Mô tả công việc</h2>
                                 </CardHeader>
                                 <CardContent className="pt-0">
-                                    <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: jobDescription.innerHTML }}></div>
-                                </CardContent>
-                            </Card>
-                        ) : (
-                            <Card className="border-blue-100 shadow-sm">
-                                <CardHeader>
-                                    <h2 className="text-lg font-semibold">Mô tả công việc</h2>
-                                </CardHeader>
-                                <CardContent className="pt-0">
-                                    <p className="text-sm text-foreground/80  whitespace-pre-line">{jobDescription}</p>
+                                    <p className="text-sm text-foreground/80 whitespace-pre-line">{jobDescription}</p>
                                 </CardContent>
                             </Card>
                         )}
 
-                        {jobRequirements && job.jobSource !== "admin" ? (
+                        {jobRequirements && (
                             <Card className="border-blue-100 shadow-sm">
                                 <CardHeader>
                                     <h2 className="text-lg font-semibold">Yêu cầu công việc</h2>
                                 </CardHeader>
                                 <CardContent className="pt-0">
-                                    <div className="prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: jobRequirements.innerHTML }}></div>
-                                </CardContent>
-                            </Card>
-                        ) : (
-                            <Card className="border-blue-100 shadow-sm">
-                                <CardHeader>
-                                    <h2 className="text-lg font-semibold">Yêu cầu công việc</h2>
-                                </CardHeader>
-                                <CardContent className="pt-0">
-                                    <p className="text-sm text-foreground/80  whitespace-pre-line">{jobRequirements}</p>
+                                    <p className="text-sm text-foreground/80 whitespace-pre-line">{jobRequirements}</p>
                                 </CardContent>
                             </Card>
                         )}
