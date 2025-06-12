@@ -23,13 +23,14 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { searchJobs, deleteJob } from "@/lib/api";
-import { jobCategoriesMap, experienceLevelsMap } from "@/lib/constants";
+import { jobCategoriesMap, experienceLevelsMap, jobSourcesMap } from "@/lib/constants";
 export default function Jobs() {
     const router = useRouter();
     const [jobs, setJobs] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [jobCategory, setJobCategory] = useState("");
     const [experienceLevel, setExperienceLevel] = useState("");
+    const [jobSource, setJobSource] = useState("");
     const [isFilterOpen, setIsFilterOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -44,7 +45,7 @@ export default function Jobs() {
     });
 
     // Count active filters
-    const activeFiltersCount = [jobCategory, experienceLevel].filter(Boolean).length;
+    const activeFiltersCount = [jobCategory, experienceLevel, jobSource].filter(Boolean).length;
 
     const popoverRef = useRef(null);
 
@@ -84,6 +85,7 @@ export default function Jobs() {
                 skill: searchTerm,
                 category: jobCategory,
                 jobLevel: experienceLevel,
+                jobSource: jobSource,
             };
 
             const data = await searchJobs(page, pagination.perPage, filters);
@@ -133,6 +135,7 @@ export default function Jobs() {
     // Clear filter helpers
     const clearJobCategory = () => setJobCategory("");
     const clearExperienceLevel = () => setExperienceLevel("");
+    const clearJobSource = () => setJobSource("");
 
     // Handle opening job details dialog
 
@@ -170,6 +173,15 @@ export default function Jobs() {
                                 <div className="flex items-center gap-1 px-2 py-1 bg-foreground/10 rounded-md text-sm">
                                     <span className="truncate max-w-[100px]">{experienceLevelsMap[experienceLevel] || experienceLevel}</span>
                                     <button type="button" onClick={clearExperienceLevel} className="text-gray-500 hover:text-gray-700">
+                                        <X className="h-3 w-3" />
+                                    </button>
+                                </div>
+                            )}
+
+                            {jobSource && (
+                                <div className="flex items-center gap-1 px-2 py-1 bg-foreground/10 rounded-md text-sm">
+                                    <span className="truncate max-w-[100px]">{jobSourcesMap[jobSource] || jobSource}</span>
+                                    <button type="button" onClick={clearJobSource} className="text-gray-500 hover:text-gray-700">
                                         <X className="h-3 w-3" />
                                     </button>
                                 </div>
@@ -239,6 +251,31 @@ export default function Jobs() {
                                                 </SelectContent>
                                             </Select>
                                             <Button variant="ghost" onClick={clearExperienceLevel} className="h-9 w-9 bg-foreground/10">
+                                                <X className="h-3 w-3" />
+                                            </Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <h4 className="font-medium text-sm">Nguồn</h4>
+                                        <div className="flex gap-1">
+                                            <Select value={jobSource} className="flex-1" onValueChange={setJobSource}>
+                                                <SelectTrigger>
+                                                    <div className="truncate w-[200px] text-left">
+                                                        <SelectValue placeholder="Chọn nguồn" />
+                                                    </div>
+                                                </SelectTrigger>
+                                                <SelectContent align="end">
+                                                    <SelectGroup>
+                                                        {Object.entries(jobSourcesMap).map(([value, label]) => (
+                                                            <SelectItem key={value} value={value}>
+                                                                {label}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <Button variant="ghost" onClick={clearJobSource} className="h-9 w-9 bg-foreground/10">
                                                 <X className="h-3 w-3" />
                                             </Button>
                                         </div>

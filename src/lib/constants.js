@@ -41,6 +41,12 @@ export const experienceLevelsMap = {
     "Director and above": "Giám đốc trở lên",
 };
 
+// Job sources mapping
+export const jobSourcesMap = {
+    vietnamworks: "VietnamWorks",
+    admin: "Admin",
+};
+
 // Convert Vietnamese text to non-accented for search
 export const convertToNonAccentedVietnamese = (str) => {
     if (!str) return "";

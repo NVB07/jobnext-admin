@@ -287,6 +287,7 @@ export const searchJobs = async (page = 1, perPage = 10, filters = {}) => {
             skill: filters.skill || "",
             category: filters.category || "",
             jobLevel: filters.jobLevel || "",
+            jobSource: filters.jobSource || "",
         };
 
         const response = await fetch(`${API_URL}/jobs/search-no-match?page=${page}&perPage=${perPage}`, {
