@@ -264,12 +264,12 @@ export default function UsersPage() {
                             </Button>
                         )}
                     </div>
-                    <div className="flex items-center gap-2">
+                    {/* <div className="flex items-center gap-2">
                         <Button size="sm" className="h-9 gap-1">
                             <UserPlus className="h-4 w-4" />
                             Thêm người dùng
                         </Button>
-                    </div>
+                    </div> */}
                 </div>
 
                 {/* Search Status */}
